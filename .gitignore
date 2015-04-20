@@ -1,0 +1,6 @@
+*.pyc
+*.log
+*.sw*
+dataset/cifar-10-batches-py
+dataset/cifar-10-batches-bin
+test

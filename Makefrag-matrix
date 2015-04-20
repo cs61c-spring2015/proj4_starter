@@ -1,0 +1,10 @@
+matrix-linear: util/im2col_c.so
+	@python matrix.py linear 5000
+
+matrix-nn: util/im2col_c.so
+	@python matrix.py nn 2000
+
+matrix-cnn: util/im2col_c.so
+	@python matrix.py cnn 10000
+
+.PHONY: matrix-linear matrix-nn matrix-cnn 

@@ -1,0 +1,213 @@
+<html><head>
+	<title>CS61C Spring 2015 Project 4</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+
+	<style type="text/css">
+		table{background:#cdc;border-collapse:collapse;font-family:monospace}td{border:0.125em solid #aba;padding:0.25em}thead{background:#676;color:#fff;text-transform:uppercase}
+    td{font-size: 1.2em;}
+		span.inst{color:#d00}span.rgtr{color:#00a}span.immd{color:#a0a}span.label{color:#666}
+		div.highlight{background:#cdc;padding:1em}
+		span.warn{color:#f00;font-weight:bold;}
+		table.colonly{display:inline-block;vertical-align:top;}table.colonly td{border-top:0em;border-bottom:0em;padding-top:0.1em;padding-bottom:0.1em;}td.center{text-align:center}
+	</style>
+</head>
+<body>
+
+<div class="header">
+	<div class="header-text">
+		<h1>CS61C Spring 2015 Project 4: Deep Learning Algorithm and Spark </h1>
+		TA: Donggyu Kim, Shreyas Chand  
+	</div>
+</div>
+
+<div class="content">
+	<p><b>Due Sunday, April 26, 2015 @ 11:59pm</b></p>
+
+	<div class="highlight">
+		<h3>IMPORTANT INFO</h3>
+
+		<p>Project 4 can be done on your local machines. However, We recommend you do this project on the hive machines. It requires substantial dataset and software packages including Hadoop, Spark, numpy, and Cython, and installing them is very time-consuming. </p>
+	</div>
+
+	<h2>Updates</h2>
+
+	<ul>
+    <li>No updates yet!</li>
+	</ul>
+	
+	<h2>Goals</h2>
+	<p>The goal of this project is to get you familiar with the <a href="http://en.wikipedia.org/wiki/MapReduce">MapReduce</a> programming model using the <a href="">Apache Spark</a> framework. In the first part you will optimize <a href="http://en.wikipedia.org/wiki/Convolutional_neural_network">convolutional neural networks(CNN)</a>, a sort of <a href="http://en.wikipedia.org/wiki/Deep_learning">the deep learning algorithms</a>, with the MapReduce framework. In the second part of the project, you will run your implementation on a large cluster of Amazon Web Services Elastic Compute Cloud <a href="http://aws.amazon.com/ec2/">(AWS EC2)</a> servers in order to crunch through a large problem. We hope that by doing this project you will gain an appreciation for the MapReduce programming model, and at the same time pick up a very marketable skill.</p>
+
+	<h2>Background</h2>
+	<p>In Project 3, you optimized the evaluations of the CNN written in C. Now, in this project, you will optimize the training(or learning) of the model in neural networks using  Spark in python.
+		 
+	<h3>Image Classification, Evaluation, and Learning</h3>
+	<p>The image classification problem is the task of assigning an input image one label from a fixed set of categories. To do this, the image classifiers <b>evaluate the scores</b> of each category, and choose the highest among them. It is very unclear how to write the code for the evaluation, but instead, we feed <b>input images</b> to the classifiers to make them <b>learn</b> what the evaluation models look like.</p>
+
+	<p>For prediction, we evaluate the each layer's forward passes to obtain the scores. For learning, we evaluate the loss function, calculate the gradients, and update the parameters to minimize the loss function. For this reason, we evaluate the backward passes as well as the forward passes, and iterate this process multiple times. Thus, learning is computationally much heavier than prediction.
+		
+	<p align="center"><img src="pipeline.jpg"></p>
+	
+	<p>This diagram shows how the learning of a two-layer network is pipelined. First, Layer1 evaluates its forward function using the input data, and passes the result to Layer2. Layer2 also evaluates its forward function, and passes its value to the Loss Layer. Note that all layer values should be passed through the forward passes since they are used in the backward functions later.</p>
+	<p>The Loss Layer computes the gradient on Layer2 as well as the loss function using Layer2's value, and pass the gradient to Layer2. Next, Layer2 evaluates the backward function with its gradient and Layer1's value to generate Layer1's gradient and to update its parameters. Finally, Layer1 evaluates its backward function to update its parameters.</p>
+	<p>This process updates the parameters gradually, so we iterate it multiple times. Note that in the Apache Spark framework, iterations are overlapped like the CPU pipeline.</p>
+	<p>Some careful readers may notice that various image classifiers are composed in the same fashion. Thus, in this project, you will compose the forward and backward passes using Spark for three kinds of classifiers from the simplest to the deep CNN.</p>
+
+	<h2>Step 0: Obtaining the Files & Getting Started</h2>
+
+	<p>Similarly to Project 3, we will be distributing the project files through Github. An abridged version of the commands is reproduced below:</p>
+        
+        <pre>cd ~                            # Make sure you are outside of any existing repositories (eg. ~/work)
+git clone git@github.com:cs61c-spring2015/proj4-XX-YY.git
+cd proj4-XX-YY                  # Go inside the directory that was created
+git remote add proj4_starter git@github.com:cs61c-spring2015/proj4_starter
+git fetch proj4_starter
+git merge proj4_starter/master -m "merge proj4 skeleton code"</pre>
+
+	<h3>Matrix Versions of the Classifiers</h3>
+	
+	<p>The reference implementations of three classifiers are provided in <tt>matrix/</tt>. The matrix versions manipulate images as one big matrix. </p>
+	<p>Each classifier(<tt>matrix/linear.py, matrix/nn.py, matrix/cnn.py</tt>) inherits the <tt>Classifier</tt> class in <tt>matrix/classifier.py</tt>. There two main methods in <tt>Classifier</tt> : <tt>train()</tt> and <tt>validate()</tt>. <tt>train()</tt> iterates parameter tuning using <tt>forward()</tt> and <tt>backward()</tt>, and <tt>validate</tt> calculates the accuracy of the classifier by evaluating the scores for test images using <tt>forward()</tt>. The two methods, <tt>forward()</tt> and <tt>backward()</tt>, should be defined in sub-classes, representing the forward and backward passes, respectively.</p>
+	<p> We have three classifiers included: a linear classifier, a two-layer fully connected neural network, and a deep convolutional neural network. You will compose the spark versions of these three classifiers step by step. For now, let's just run them first. To train the linear classifier, which is the simplest and fastest, but the most inaccurate classifier, run: </p>
+	
+	<pre>make matrix-linear</pre>
+	
+	<p> To train the two-layer fully connected neural network, which is slightly more accuracy than the linear classifier: </p>
+	
+	<pre>make matrix-nn</pre>
+	
+	<p> Finally, to train the deep convolutional neural network, which can achieve up to 80% of accuracy, but is painfully slow even though we run a single iteration: </p>
+	
+	<pre>make matrix-cnn</pre>
+
+	<p> In fact, it loads a pre-trained network, and this is why it can achieve such accuracy. You can easily see that why we would love to optimize it. </p>
+	
+	<p><b>Do not edit any files in <tt>matrix/</tt>.</b> The tester compares your spark versions with the matrix versions provided. Any fix is highly likely to result in a zero for this project.</p>
+	
+	<h3>Layer Functions</h3>
+	
+	<p>To compose classifiers, we provide the forward and the backward functions in <tt>util/layer.py</tt>. All layer functions serve as "Lego blocks" to build any image classifers. You can see how these functions are used in <tt>matrix/linear.py</tt>, <tt>matrix/nn.py</tt>, and <tt>matrix/cnn.py</tt>. Generally, you do not have to understand what each layer function does, but you need to understand how the outputs of each layer function are used and how the inputs are passed to another layer function from the code of matrix versions. You will also use the same functions for your spark versions. Thus, don't worry about the situation where you will implement your own layer functions.</p>
+	
+	<p><b>Do not edit <tt>util/layer.py</tt>.</b> It is also likely to result in risking your points for this project.</p>
+	
+	<h3>Spark Versions of the Classifiers</h3>
+	<p>We provide you the templates for your spark versions of the classifiers in <tt>spark/</tt>, but let's first visit <tt>spark.py.</tt> It splits a big matrix into smaller sub-matrices, and creates RDDs for learning and validation. Thus, you have to use <b>transforms</b> and <b>actions</b> on the RDDs with the layer functions. For more information on actions and transforms, visit <a href="https://spark.apache.org/docs/latest/programming-guide.html#rdd-operations">here</a>. Your final goal is to port the deep CNN to spark, but we start with the easiest one to get familiar with Spark and MapReduce.</p>
+	<p>You can also try your spark versions, but make sure run and pass all the tests first. To train the linear classifier, run:</p>
+	
+	<pre>make spark-linear</pre>
+	
+	<p>To train the two-layer fully-connected neural network, run:</p>
+	
+	<pre>make spark-nn</pre>
+	
+	<p>To train the deep CNN, run:</p>
+	
+	<pre>make spark-cnn</pre>
+		
+	<h2>Step 1: Linear Classifier</h2>
+	
+	<p>Let's start with the simplest classifier having just one layer. Fill in <tt>forward()</tt> and <tt>backward()</tt> in <tt>spark/linear.py</tt>. You may want to reference <tt>matrix/linear.py</tt> for this step. Also, note that you should use the same layer functions as in <tt>matrix/linear.py</tt>.</p>
+	<p>In the forward pass, key/value pairs are given as inputs, but note that keys are not important in this case. We equally divide the input data set into smaller data chunks, and can apply the layer functions to individual data chunks in parallel. In the backward pass, the keys are detached, and to compute the loss and the gradients on the parameters, you should reduce them regardless of the keys.</p>
+	<p>We provide you the implementation for the loss function in Step 1, because it requires background knowledge on the loss function. However, you should implement the loss functions by yourself for other classifiers. </p>
+	<p>To check the sanity of your code, run:</p>
+	
+	<pre>make test-linear</pre>
+	
+	<p>This will compare your spark version with the matrix version.</p>
+	
+	<h2>Step 2: Fully-Connected Neural Network</h2>
+	
+	<p>Now, let's move onto the fully-connected neural network having three layers in total. Fill in <tt>forward()</tt> and <tt>backward()</tt> in <tt>spark/nn.py</tt>. You may want to reference <tt>matrix/nn.py</tt>. Think carefully what values should be passed one RDD to another. Also, you have to update the parameters of two layers.</p>
+	<p>To check your code for the fully-connected neural network, run:</p>
+	
+	<pre>make test-nn</pre>
+	
+	<h2>Step 3: Deep Convolutional Neural Network</h2>
+	
+	<p>Finally, it's time to compose the deep CNN, which is the same network in Project3. Fill in <tt>forward()</tt> and <tt>backward()</tt> in <tt>spark/cnn.py</tt>. You may want to reference <tt>matrix/nn.py</tt>.</p>
+	<p>Step 1 and Step 2 are just short journeys for this step to help you easily get to the solution. If you fail in Step 1 and 2, you are highly likely to fail in this step, too. Your experience on Project 3 can be helpful, but also be careful since it has 10 layers in total! Think very carefully what values are passed across layers. Otherwise, you will be easily lost in the deep network.</p>
+
+	<p>To check your code for the deep CNN, run:</p>
+	
+	<pre>make test-cnn</pre>
+	
+	<h2 id="spark-notes"> Notes On Spark </h2>
+	<p>We highly recommend you read and understand this short <a href="http://spark.apache.org/docs/latest/programming-guide.html">Spark programming guide</a>, especially the section on <a href="http://spark.apache.org/docs/latest/programming-guide.html#working-with-key-value-pairs">key-value pairs and their transformations</a>. After all, if you choose to put Apache Spark on your résumé, you want to be able to answer any questions that are thrown your way ;).</p>
+
+	Finally, the other resource that will come in handy is the detailed Spark-Python API, available at: <a href="http://spark.apache.org/docs/latest/api/python/pyspark-module.html">http://spark.apache.org/docs/latest/api/python/pyspark-module.html</a>
+
+	<h4>Global Variables</h4>
+	<p>In the lab, we mentioned global variables should be avoided in Spark. This isn't entirely true - let us elaborate on this a bit more. Global variables <em>may</em> cause poor performance because they require information to be shared among the nodes in your cluster. If this global variable is frequently being changed, this data must frequently be copied to and from nodes, which hurts parallelism. However, if your global variable is simply a read-only constant, (in our example, the width and height of the board), that is fine.</p>
+
+	<p>If you have some information that is to be shared and processed by all the nodes in parallel, you should be using an RDD (resilient distributed dataset), the primary abstraction in Spark.</p>
+
+	<p>For the curious, Spark provides other abstractions for <a href="http://spark.apache.org/docs/0.9.1/scala-programming-guide.html#shared-variables">shared variables</a>, namely broadcast variables and accumulators. Our solution does not make use of these, but you are free to try them if you wish.</p>
+
+	<h3>Advanced Notes</h3>
+	<p> After getting a basic solution working, use these techniques to further optimize your performance.</p>
+
+	<h4>Lazy Evaluation</h4>
+	<p>As you should understand from reading the Spark docs, transformations on RDDs in Spark are <em>lazy</em> (remember lazy evaluation from 61A?). The result is only computed when it is required by some <a href="http://spark.apache.org/docs/0.9.1/scala-programming-guide.html#actions">action</a>, such as <code>count</code> or <code>saveAsTextFile</code>.</p>
+
+	<p>You may find that you achieve better performance by not "materializing" your RDD for each iteration of your MapReduce job -- that is, you may allow several iterations of transformations to occur before calling an action on it. Spark is able to optimize the collection of transformations better than each transformation individually.
+	</p>
+
+	<h4>Partitioning</h4>
+	<p>An RDD is a collection of elements partitioned across nodes in a cluster. By default, Spark simply splits up the RDD sequentially and ships it off to each node. When it is time to reduce, KV pairs may be shipped across nodes in the shuffling phase. Because shuffling requires moving data around, it is a comparatively expensive operation.</p>
+
+	<p>You may find that you can achieve better performance by partitioning your dataset in a more intelligent way. This allows some of the reducing to take place locally on a particular node, rather than requiring it to be shuffled. See the <a href="http://spark.apache.org/docs/latest/api/python/pyspark.rdd.RDD-class.html#partitionBy"><code>partitionBy</code></a> operation on RDDs for more info.</p>
+	</p>
+
+	<p>As a final note, since repartitioning requires reshuffling large chunks of the data, it may be useful to not repartition on <em>every</em> iteration, but rather every <em>k</em> iterations, where you decide what <em>k</em> is.</p>
+	
+     <h2 id="grading"> Grading </h3>
+        <ul>
+          <li>First, your code will be graded on the correctness of the produced solution. This will be done by comparing your
+            spark version with the matrix version. Make sure your implementations pass all the test before submission </li>
+          <li>Second, we will be comparing the runtime of your code against the staff solution. The guide line on the performance will be announced very soon. </li>
+        </ul>
+      <p>Keep in mind that your running time is highly dependent on who else is logged into the server you are using and what they are running. You can use the <code>who</code>, <code>w</code>, and <code>top</code> commands to get a sense of what other users and processes are sharing your machine, and whether you should try another one.</p>
+	
+	
+	<h2>Submission</h2>
+
+	<p><span class="warn">Make sure that your implementation is correct and passes all the provided tests! If not, you risk losing all points for the entire project.</span></p>
+				
+	<p>There are <strong>two</strong> steps required to submit proj4. Failure to perform both steps will result in loss of credit:</p>
+
+	<ol>
+		<li><p>First, you must submit using the standard unix submit program on the instructional servers. This assumes that you followed the earlier instructions and did all of your work inside of your <tt>git</tt> repository. To submit, follow these instructions after logging into your cs61c-XX class account:</p>
+
+			<pre>
+cd ~/proj4-XX-YY                             # Or where your shared git repo is
+submit proj4-1</pre>
+				
+			<p> Once you type <tt>submit proj4-1</tt>, follow the prompts generated by the submission system. It will tell you when your submission has been successful and you can confirm this by looking at the output of <tt>glookup -t</tt>.</p>
+			<br />
+		</li>
+
+		<li><p>Additionally, you must submit proj4-1 to your <b>shared</b> GitHub repository:</p>
+
+			<pre>
+cd ~/proj4-XX-YY                             # Or where your shared git repo is
+git add -u                           
+git commit -m "project 4-1 submission"  
+git tag "proj4-1-sub"                        # The tag MUST be "proj4-1-sub". Failure to do so will result in loss of credit.
+git push origin proj4-1-sub                  # This tells git to push the commit tagged proj4-1-sub</pre>
+		</li>
+	</ol>
+
+	<h4>Resubmitting</h4>
+
+	<p>If you need to re-submit, you can follow the same set of steps that you would if you were submitting for the first time, but you will need to use the <tt>-f</tt> flag to tag and push to GitHub:</p>
+
+	<pre>
+# Do everything as above until you get to tagging
+git tag -f "proj4-1-sub"
+git push -f origin proj4-1-sub</pre>
+
+	<p>Note that in general, force pushes should be used with caution. They will overwrite your remote repository with information from your local copy. As long as you have not damaged your local copy in any way, this will be fine.</p>
+
+</div>
+</body>
+</html>
