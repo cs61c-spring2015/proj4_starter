@@ -57,9 +57,6 @@ class LinearClassifier(Classifier):
     OUTPUT:
       - loss
     """
-    A = self.A
-    b = self.b
-
     """ 
     softmax loss layer
     (image, score, class) pairs -> (image, (loss, gradient))
