@@ -56,7 +56,7 @@ class NNClassifier(Classifier):
     INPUT:
       - data: RDD[(key, (image, class)) pairs]
     OUTPUT:
-      - RDD[(key, (image, [layers], class)) pairs]
+      - RDD[(key, (image, list of layers, class)) pairs]
     """
     """
     TODO: Implement the forward passes of the following layers
@@ -69,7 +69,7 @@ class NNClassifier(Classifier):
   def backward(self, data, count):
     """
     INPUT:
-      - data: RDD[(image, class) pairs]
+      - data: RDD[(image, list of layers, class) pairs]
     OUTPUT:
       - loss
     """

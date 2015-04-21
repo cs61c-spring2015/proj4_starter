@@ -51,9 +51,11 @@ class Classifier(object):
     """ evaluate the scores for test images """
     f = np.concatenate(self.forward(data).map(lambda (k, v): v[1][-1]).collect())
     """ calculate accuracy """
-    p = np.argmax(f, axis = 1)
-
-    print '[CS61C Project 4] accuracy: %.2f' % (np.mean(p == Y))
+    if Y.shape[0] == f.shape[0]:
+      p = np.argmax(f, axis = 1)
+      print '[CS61C Project 4] accuracy: %.2f' % (np.mean(p == Y))
+    else:
+      print '[CS61C Project 4] wrong scores! implement forward() first!'
     return
 
   @abstractmethod
