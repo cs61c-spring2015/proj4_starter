@@ -154,7 +154,7 @@ class CNNClassifier(Classifier):
 
     """ TODO: Layer10: FC (1 x 1 x 10) forward """
 
-    return data.map(lambda (k, (x, y)): (k, (x, [(np.zeros((1,1)), np.zeros((1,1)))], y)))
+    return data.map(lambda (k, (x, y)): (k, (x, [(np.zeros((1,1)), np.zeros((1,1)))], y))) # replace it with your code
 
   def backward(self, data, count):
     """
@@ -167,7 +167,7 @@ class CNNClassifier(Classifier):
     """ TODO: Softmax Loss Layer """ 
 
     """ TODO: Compute Loss """
-    L = 0.0
+    L = 0.0 # replace it with your code
 
     """ regularization """
     L += 0.5 * self.lam * np.sum(self.A1*self.A1)
@@ -178,8 +178,8 @@ class CNNClassifier(Classifier):
     """ TODO: Layer10: FC (1 x 1 x 10) Backward """
 
     """ TODO: gradients on A10 & b10 """
-    dLdA10 = np.zeros(self.A10.shape)
-    dLdb10 = np.zeros(self.b10.shape)
+    dLdA10 = np.zeros(self.A10.shape) # replace it with your code
+    dLdb10 = np.zeros(self.b10.shape) # replace it with your code
 
     """ TODO: Layer9: Pool (4 x 4 x 20) Backward """
 
@@ -188,8 +188,8 @@ class CNNClassifier(Classifier):
     """ TODO: Layer7: Conv (8 x 8 x 20) Backward """
 
     """ TODO: gradients on A7 & b7 """
-    dLdA7 = np.zeros(self.A7.shape)
-    dLdb7 = np.zeros(self.b7.shape)
+    dLdA7 = np.zeros(self.A7.shape) # replace it with your code
+    dLdb7 = np.zeros(self.b7.shape) # replace it with your code
  
     """ TODO: Layer6: Pool (8 x 8 x 20) Backward """
 
@@ -198,8 +198,8 @@ class CNNClassifier(Classifier):
     """ TODO: Layer4: Conv (16 x 16 x 20) Backward """ 
 
     """ TODO: gradients on A4 & b4 """
-    dLdA4 = np.zeros(self.A4.shape)
-    dLdb4 = np.zeros(self.b4.shape)
+    dLdA4 = np.zeros(self.A4.shape) # replace it with your code
+    dLdb4 = np.zeros(self.b4.shape) # replace it with your code
  
     """ TODO: Layer3: Pool (16 x 16 x 16) Backward """ 
  
@@ -208,8 +208,8 @@ class CNNClassifier(Classifier):
     """ TODO: Layer1: Conv (32 x 32 x 16) Backward """
  
     """ TODO: gradients on A1 & b1 """
-    dLdA1 = np.zeros(self.A1.shape)
-    dLdb1 = np.zeros(self.b1.shape)
+    dLdA1 = np.zeros(self.A1.shape) # replace it with your code
+    dLdb1 = np.zeros(self.b1.shape) # replace it with your code
 
     """ regularization gradient """
     dLdA10 = dLdA10.reshape(self.A10.shape)

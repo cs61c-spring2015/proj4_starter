@@ -48,7 +48,7 @@ class LinearClassifier(Classifier):
     Todo: Implement the forward pass of Layer1
     """
 
-    return data.map(lambda (k, (x, y)): (k, (x, np.zeros((x.shape[0], self.A.shape[1])), y)))
+    return data.map(lambda (k, (x, y)): (k, (x, np.zeros((x.shape[0], self.A.shape[1])), y))) # Replace it with your code
 
   def backward(self, data, count):
     """
@@ -67,7 +67,7 @@ class LinearClassifier(Classifier):
     Todo: Compute the loss
     Hint: You need to reduce the RDD from 'softmax loss layer'
     """
-    L = 0.0
+    L = 0.0 # replace it with your code
  
     """ regularization: loss = 1/2 * lam * sum_nk(A_nk * A_nk) """
     L += 0.5 * self.lam * np.sum(self.A * self.A) 
@@ -81,8 +81,8 @@ class LinearClassifier(Classifier):
     Hint: You need to reduce the RDD from 'backpropagation for Layer 1'
           Also check the output of the backward function
     """
-    dLdA = np.zeros(self.A.shape)
-    dLdb = np.zeros(self.b.shape)
+    dLdA = np.zeros(self.A.shape) # replace it with your code
+    dLdb = np.zeros(self.b.shape) # replace it with your code
 
     """ regularization gradient """
     dLdA = dLdA.reshape(self.A.shape)
