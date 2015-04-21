@@ -57,7 +57,7 @@ def dump_rdd(rdd, prefix="rdd_"):
   path = 'dump/'
   if not os.path.exists(path):
     os.mkdir(path)
-  l = zip(*rdd.collect())
+  l = rdd.collect()
   for i, x in enumerate(l):
     if type(x).__module__ == np.__name__:
       dump_matrix(x, prefix + "_" + str(i))
