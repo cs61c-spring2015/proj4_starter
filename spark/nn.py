@@ -2,6 +2,7 @@ import numpy as np
 import cPickle as pickle
 from classifier import Classifier
 from util.layers import *
+from util.dump import *
 
 """ STEP2: Build Two-layer Fully-Connected Neural Network """
 

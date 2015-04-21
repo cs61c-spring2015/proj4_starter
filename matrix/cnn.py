@@ -3,6 +3,7 @@ import cPickle as pickle
 from time import time
 from classifier import Classifier
 from util.layers import *
+from util.dump import dump_big_matrix
 
 class CNNClassifier(Classifier):
   def __init__(self, D, H, W, K, iternum, verbose = False):

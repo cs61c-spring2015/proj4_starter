@@ -2,6 +2,7 @@ import numpy as np
 import cPickle as pickle
 from classifier import Classifier
 from util.layers import *
+from util.dump import dump_big_matrix
 
 class LinearClassifier(Classifier):
   def __init__(self, D, H, W, K, iternum):

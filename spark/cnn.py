@@ -3,6 +3,7 @@ import cPickle as pickle
 from time import time
 from classifier import Classifier
 from util.layers import *
+from util.dump import *
 
 """ STEP3: Build Deep Convolutional Neural Network """
 
