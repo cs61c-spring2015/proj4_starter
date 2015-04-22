@@ -54,13 +54,13 @@ class LinearClassifier(Classifier):
   def backward(self, data, count):
     """
     INPUT:
-      - data: RDD[(image, list of layers, class) pairs]
+      - data: RDD[(image, list of layers, labels) pairs]
     OUTPUT:
       - loss
     """
     """ 
     softmax loss layer
-    (image, score, class) pairs -> (image, (loss, gradient))
+    (images, scores, labels) pairs -> (images, (loss, gradient))
     """
     softmax = data.map(lambda (x, l, y): (x, softmax_loss(l[-1], y))) \
                   .map(lambda (x, (L, df)): (x, (L/count, df/count)))

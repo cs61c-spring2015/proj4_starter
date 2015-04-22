@@ -130,9 +130,9 @@ class CNNClassifier(Classifier):
   def forward(self, data):
     """
     INPUT:
-      - data: RDD[(key, (image, class)) pairs]
+      - data: RDD[(key, (images, labels)) pairs]
     OUTPUT:
-      - RDD[(key, (image, list of layers, class)) pairs]
+      - RDD[(key, (images, list of layers, labels)) pairs]
     """
 
     """ TODO: Layer1: Conv (32 x 32 x 16) forward """
@@ -160,7 +160,7 @@ class CNNClassifier(Classifier):
   def backward(self, data, count):
     """
     INPUT:
-      - data: RDD[(image, list of layers, class) pairs]
+      - data: RDD[(images, list of layers, labels) pairs]
     OUTPUT:
       - Loss
     """
