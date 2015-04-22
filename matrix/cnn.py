@@ -122,8 +122,8 @@ class CNNClassifier(Classifier):
   def param(self):
     return [
       self.A10, self.b10,
-      self.A4, self.b4, 
       self.A7, self.b7, 
+      self.A4, self.b4, 
       self.A1, self.b1]
 
   def forward(self, X):
