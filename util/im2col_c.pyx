@@ -81,9 +81,10 @@ def im2col_backward(dX_col, dim, F1, F2, S, P):
   W_ = (W - F2 + 2*P) / S + 1
 
   # initialize dX: [N * D * (H+2P) * (W+2P)]
-  dX = np.zeros((N, D, (H+2*P), (W+2*P)))
+  dX = np.zeros((D, (H+2*P), (W+2*P), N))
   # compute dX: [N * D * H * W]
   col2im_wrapper(dX, np.require(dX_col, np.float64, ['C','A']), N, D, H, W, F1, F2, S, P)
+  dX = dX.transpose(3,0,1,2)
 
   if P > 0:
     dX = dX[:,:,P:-P,P:-P]
