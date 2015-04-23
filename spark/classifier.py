@@ -22,7 +22,7 @@ class Classifier(object):
     """ 
     preprocess the data X
     """
-    return data.map(lambda (k, (x, y)): (k, (x / 255.0 - 5.0, y)))
+    return data.map(lambda (k, (x, y)): (k, (x / 255.0 - 0.5, y)))
 
   def train(self, data, classes, count):
     data = self.preprocess(data)
