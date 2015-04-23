@@ -48,7 +48,7 @@ if __name__ == '__main__':
   classifiers = {
     'linear': LinearClassifier(D, H, W, len(classes), 200),
     'nn'    : NNClassifier(D, H, W, len(classes), 50),
-    'cnn'   : CNNClassifier(D, H, W, len(classes), 1),
+    'cnn'   : CNNClassifier(D, H, W, len(classes), 10),
   }
   classifier = classifiers[name]
 
@@ -64,10 +64,12 @@ if __name__ == '__main__':
     classifier.load('snapshot/' + name + '/')
   s = time()
   classifier.train(trainData, classes, datanum)
-  e = time()
+  e1 = time()
   classifier.validate(testData, classes)
+  e2 = time()
   print '[CS61C Project 4] training performane: %.2f imgs / sec' % \
-    ((datanum * classifier.iternum) / (e - s))
+    ((datanum * classifier.iternum) / (e1 - s))
+  print '[CS61C Project 4] time elapsed: %.2f min' % ((e2 - s) / 60.0)
 
   trainData.unpersist()
   testData.unpersist()
