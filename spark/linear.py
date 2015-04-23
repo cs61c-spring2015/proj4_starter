@@ -49,7 +49,7 @@ class LinearClassifier(Classifier):
     Todo: Implement the forward pass of Layer1
     """
 
-    return data.map(lambda (k, (x, y)): (k, (x, np.zeros((x.shape[0], self.A.shape[1])), y))) # Replace it with your code
+    return data.map(lambda (k, (x, y)): (k, (x, [np.zeros((x.shape[0], 2))], y))) # Replace it with your code
 
   def backward(self, data, count):
     """

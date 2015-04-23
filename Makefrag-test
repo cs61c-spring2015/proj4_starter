@@ -1,5 +1,5 @@
-chunk_num := 4
-spark_config := --name "CNNtraining" --master local[$(chunk_num)] \
+core_num := 4
+spark_config := --name "CNNtraining" --master local[$(core_num)] \
 	--driver-memory 2g --executor-memory 4g
 
 test-linear: util/im2col_c.so

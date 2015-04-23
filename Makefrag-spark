@@ -1,14 +1,18 @@
-chunk_num ?= 4
-spark_config := --name "CNNtraining" --master local[$(chunk_num)] \
-	--driver-memory 2g --executor-memory 4g
+core_num ?= 8
+spark_config := --name "CNNtraining" --master local[$(core_num)] \
+	--driver-memory 4g --executor-memory 4g
 
-spark-linear: util/im2col_c.so
-	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py linear 2000 $(chunk_num) 2> spark.log
+spark = $(addprefix spark-, $(classifiers))
+spark-small = $(addprefix spark-, $(addsuffix -small, $(classifiers)))
+spark-large = $(addprefix spark-, $(addsuffix -large, $(classifiers)))
 
-spark-nn: util/im2col_c.so
-	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py nn 100 $(chunk_num) 2> spark.log
+$(spark): spark-%: util/im2col_c.so
+	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(regular) 2> spark.log
 
-spark-cnn: util/im2col_c.so
-	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py cnn 100 $(chunk_num) 2> spark.log
+$(spark-small): spark-%-small: util/im2col_c.so
+	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(small) 2> spark.log
 
-.PHONY: spark-linear
+$(spark-large): spark-%-large: util/im2col_c.so
+	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(large) 2> spark.log
+
+.PHONY: $(spark) $(spark-small) $(spark-large)

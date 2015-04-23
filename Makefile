@@ -1,3 +1,8 @@
+regular     := 2000
+small       := 500
+large       := 8000
+classifiers := linear nn cnn
+
 util/im2col_c.so: util/im2col_c.pyx util/im2col.c util/im2col.h
 	@cd util && python setup.py build_ext -i
 

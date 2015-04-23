@@ -50,7 +50,8 @@ if __name__ == '__main__':
     classifier.load("snapshot/cnn/")
   s = time()
   classifier.train(X, Y, classes)
-  classifier.validate(X_, Y_, classes)
   e = time()
-  print '[CS61C Project 4] time elapsed: %.2f min' % ((e - s) / 60)
+  classifier.validate(X_, Y_, classes)
+  print '[CS61C Project 4] training performane: %.2f imgs / sec' % \
+    ((datanum * classifier.iternum) / (e - s))
   log.close()
