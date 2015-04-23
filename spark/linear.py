@@ -64,6 +64,10 @@ class LinearClassifier(Classifier):
     """
     softmax = data.map(lambda (x, l, y): (x, softmax_loss(l[-1], y))) \
                   .map(lambda (x, (L, df)): (x, (L/count, df/count)))
+    # comment out the following line if you want to df in dump softmax 
+    # to compare it with dLdl3 in matrix/linear.py
+    dump_rdd(sofrmax.map(lambda (x, (L, df)): df), "lin_dLdl1_rdd")
+    
     """
     Todo: Compute the loss
     Hint: You need to reduce the RDD from 'softmax loss layer'

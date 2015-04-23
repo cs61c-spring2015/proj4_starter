@@ -62,11 +62,17 @@ class NNClassifier(Classifier):
     Layer 3 : linear
     """
     layer1 = linear_forward(X, A1, b1)
+    if dump_chunks > 0:
+      dump_big_matrix(layer1, "nn_l1_mat", dump_chunks)
     layer2 = ReLU_forward(layer1)
+    if dump_chunks > 0:
+      dump_big_matrix(layer2, "nn_l2_mat", dump_chunks)
     layer3 = linear_forward(layer2, A3, b3)
+    if dump_chunks > 0:
+      dump_big_matrix(layer3, "nn_l3_mat", dump_chunks)
     return [layer1, layer2, layer3]
 
-  def backward(self, X, layers, Y):
+  def backward(self, X, layers, Y, chunknum = -1):
     A1 = self.A1
     b1 = self.b1
     A3 = self.A3
@@ -75,16 +81,30 @@ class NNClassifier(Classifier):
 
     """ softmax classification """
     L, dLdl3 = softmax_loss(layer3, Y)
+    if dump_chunks > 0:
+      dump_big_matrix(dLdl3, "nn_dLdl3_mat", dump_chunks)
 
     """ regularization """
     L += 0.5 * self.lam * (np.sum(A1*A1) + np.sum(A3*A3))
 
     """ backpropagation for Layer 3 """
     dLdl2, dLdA3, dLdb3 = linear_backward(dLdl3, layer2, A3)
+    if dump_chunks > 0:
+      dump_big_matrix(dLdl2, "nn_dLdl2_mat", dump_chunks)
+      dump_big_matrix(dLdA3, "nn_dLdA3_mat", 1)
+      dump_big_matrix(dLdb3, "nn_dLdA3_mat", 1)
+
     """ backpropagation for Layer 2 """
     dLdl1 = ReLU_backward(dLdl2, layer1)
+    if dump_chunks > 0:
+      dump_big_matrix(dLdl1, "nn_dLdl1_mat", dump_chunks)
+
     """ backpropagation for Layer 1 """
     dLdX, dLdA1, dLdb1 = linear_backward(dLdl1, X, A1)
+    if dump_chunks > 0:
+      dump_big_matrix(dLdX, "nn_dLdX_mat", dump_chunks)
+      dump_big_matrix(dLdA1, "nn_dLdA1_mat", 1)
+      dump_big_matrix(dLdb1, "nn_dLdA1_mat", 1)
 
     """ regularization gradient """
     dLdA3 = dLdA3.reshape(A3.shape)

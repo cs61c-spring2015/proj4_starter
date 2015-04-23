@@ -34,26 +34,34 @@ class LinearClassifier(Classifier):
   def param(self):
     return [self.A, self.b]
 
-  def forward(self, X):
+  def forward(self, X, dump_chunks = -1):
     A = self.A
     b = self.b
     """ Layer 1: linear activation """
     layer1 = linear_forward(X, A, b)
+    if dump_chunks > 0:
+      dump_big_matrix(layer4, "lin_l1_mat", dump_chunks)
     return [layer1]
 
-  def backward(self, X, layers, Y):
+  def backward(self, X, layers, Y, dump_chunks = -1):
     A = self.A
     b = self.b
     layer1 = layers[-1]
 
     """ softmax classification """
     L, dLdl1 = softmax_loss(layer1, Y)
+    if dump_chunks > 0:
+      dump_big_matrix(dLdl1, "lin_dLdl1_mat", dump_chunks)
 
     """ regularization: loss = 1/2 * lam * sum_nk(A_nk * A_nk) """
     L += 0.5 * self.lam * np.sum(A * A) 
 
     """ backpropagation for Layer 1 """
     dLdX, dLdA, dLdb = linear_backward(dLdl1, X, A)
+    if dump_chunks > 0:
+      dump_big_matrix(dLdl6, "lin_dLdX_mat", dump_chunks)
+      dump_big_matrix(dLdA7, "lin_dLdA_mat", 1)
+      dump_big_matrix(dLdb7, "lin_dLdb_mat", 1)
 
     """ regularization gradient """
     dLdA = dLdA.reshape(A.shape)
