@@ -40,20 +40,20 @@ void col2im(
 {
   int H_ = (H - F1 + 2*P) / S + 1;
   int W_ = (W - F2 + 2*P) / S + 1;
-  for (int n = 0 ; n < N ; n++) {
-    double *dx_pad = dX_pad + n * (D * (H+2*P) * (W+2*P));
-    double *dx_col = dX_col + n * (D * F1 * F2 * H_ * W_);
-    for (int d = 0 ; d < D ; d++) {
-      double *dx_pad_rgb = dx_pad + d * ((H+2*P) * (W+2*P));
-      double *dx_col_rgb = dx_col + d * (F1 * F2 * H_ * W_);
-      for (int f1 = 0 ; f1 < F1 ; f1++) {
-        for (int f2 = 0 ; f2 < F2 ; f2++) {
-          int col = (f1 * F2 + f2);
-          for (int h_ = 0 ; h_ < H_ ; h_++) {
-            for (int w_ = 0 ; w_ < W_ ; w_++) {
-              int row = (h_ * W_ + w_);
-              // dX_pad[n, d, h_*S + f1, w_*S + f2] += dX_col[n, d, f1, f2, h_, w_]
-              dx_pad_rgb[(h_*S + f1) * (W+2*P) + (w_*S + f2)] += dx_col_rgb[row + col*(H_*W_)];
+
+  for (int d = 0 ; d < D ; d++) {
+    double *dx_pad_rgb = dX_pad + d * ((H+2*P) * (W+2*P) * N);
+    double *dx_col_rgb = dX_col + d * (F1 * F2 * H_ * W_ * N);
+    for (int f1 = 0 ; f1 < F1 ; f1++) {
+      for (int f2 = 0 ; f2 < F2 ; f2++) {
+        int col = (f1 * F2 + f2);
+        for (int h_ = 0 ; h_ < H_ ; h_++) {
+          for (int w_ = 0 ; w_ < W_ ; w_++) {
+            int row = (h_ * W_ + w_);
+            for (int n = 0 ; n < N ; n++) {
+              // dX_pad[d, h_*S + f1, w_*S + f2, n] += dX_col[d, f1, f2, h_, w_, n]
+              dx_pad_rgb[n + ((h_*S + f1) * (W+2*P) + (w_*S + f2))*N] += 
+              dx_col_rgb[n + (row + col * (H_ * W_))*N];
             }
           }
         }

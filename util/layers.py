@@ -93,7 +93,7 @@ def conv_forward(X, A, b, S, P):
   - f: [N * K * H_ * W_] -> activation maps, where
     - H_ = (H - F + 2P)/S + 1
     - W_ = (W - F + 2P)/S + 1
-  - X_col: [(D * F * F) * (H_ * W_) * N] -> column stretched images
+  - X_col: [(D * F * F) * (H_ * W_ * N)] -> column stretched images
   """
   N, _, H, W = X.shape
   K, D, F, _ = A.shape 
@@ -133,9 +133,10 @@ def conv_backward(df, X, X_col, A, S, P):
   # dL/dX : [N * D * H * W]   
   dX = im2col_backward(dX_col, X.shape, F, F, S, P)
   # dL/dA = dL/df * df/dA = X_col_ * df_ : [K * (D * F * F)]
-  dA = np.dot(df_, X_col.T) 
+  dA = np.dot(df_, X_col.T)
   # dL/db = sum(dL/df): [K * 1]
   db = np.sum(df, axis=(0, 2, 3)).reshape(K, 1)
+  #db = np.sum(df_, axis=1, keepdims=True) #(0, 2, 3)).reshape(K, 1)
  
   return dX, dA, db
 
@@ -149,7 +150,7 @@ def max_pool_forward(X, F, S):
   - f: [N * D * H_ * W_] -> pooled maps, where
     - H_ = (H - F)/S + 1
     - W_ = (W - F)/S + 1
-  - X_idx: [(N * D * H_ * W_) * 1] -> indices for X_col
+  - X_idx: [(H_ * W_ * N * D) * 1] -> indices for X_col
   """
   N, D, H, W = X.shape
   assert (H - F) % S == 0, 'wrong pooling params'
@@ -159,7 +160,7 @@ def max_pool_forward(X, F, S):
 
   # compute X_col : [(F * F) * (H_ * W_ * N * D)] 
   X_col = im2col_forward(X.reshape(N*D, 1, H, W), F, F, S, 0)
-  # compute X_idx : [(N * D * H_ * W_)] 
+  # compute X_idx : [(H_ * W_ * N * D)] 
   X_idx = np.argmax(X_col, axis=0)
   # compute f: [N * D * H_ * W_]
   f = X_col[X_idx, np.arange(X_col.shape[1])].reshape(H_,W_,N,D).transpose(2,3,0,1)
@@ -182,8 +183,8 @@ def max_pool_backward(df, X, X_idx, F, S):
 
   # dX_col : [(F * F) * (H_ * W_ * N * D)] 
   dX_col = np.zeros((F*F, H_*W_*N*D))
-  dX_col[X_idx, np.arange(dX_col.shape[1])] = df.reshape(-1)
+  dX_col[X_idx, np.arange(dX_col.shape[1])] = df.transpose(2,3,0,1).flatten()
   # dX : [N * D * H * W]  
-  dX = im2col_backward(dX_col, (N*D, 1, H, W), F, F, S, 0)  
+  dX = im2col_backward(dX_col, (N*D, 1, H, W), F, F, S, 0).reshape(X.shape)  
 
   return dX
