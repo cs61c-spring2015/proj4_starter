@@ -11,13 +11,10 @@ if __name__ == '__main__':
   """ parse args """
   name = 'linear'
   datanum = 500
-  chunknum = 4
   if len(sys.argv) > 1:
     name = str(sys.argv[1])
   if len(sys.argv) > 2:
     datanum = int(sys.argv[2])
-  if len(sys.argv) > 3:
-    chunknum = int(sys.argv[3])
 
   """ load imgs """
   classes, X, Y, X_, Y_ = load_images()
@@ -39,26 +36,26 @@ if __name__ == '__main__':
   D = X.shape[1]
   H = X.shape[2]
   W = X.shape[3]
+  N_ = X_.shape[0]
 
   """ split imgs into smaller chunks """
-  assert(datanum % chunknum == 0)
-  X = np.split(X, chunknum)
-  Y = np.split(Y, chunknum)
-  X_ = np.split(X_, chunknum)
-  Y__ = np.split(Y_, chunknum)
+  X = np.split(X, datanum)
+  Y = np.split(Y, datanum)
+  X_ = np.split(X_, X_.shape[0])
+  Y_ = np.split(Y_, Y_.shape[0])
 
   """ set classifiers """
   classifiers = {
     'linear': LinearClassifier(D, H, W, len(classes), 200),
     'nn'    : NNClassifier(D, H, W, len(classes), 50),
-    'cnn'   : CNNClassifier(D, H, W, len(classes), 1),
+    'cnn'   : CNNClassifier(D, H, W, len(classes), 10),
   }
   classifier = classifiers[name]
 
   """ set spark context and RDDs """
   sc = SparkContext()
-  trainData = sc.parallelize(zip(xrange(chunknum), zip(X, Y)))
-  testData = sc.parallelize(zip(xrange(chunknum), zip(X_, Y__)))
+  trainData = sc.parallelize(zip(xrange(datanum), zip(X, Y)))
+  testData = sc.parallelize(zip(xrange(N_), zip(X_, Y_)))
 
   """ run clssifier """
   log = open('spark-' + name + '.log', 'w')
@@ -66,10 +63,13 @@ if __name__ == '__main__':
   if name == 'cnn':
     classifier.load('snapshot/' + name + '/')
   s = time()
-  classifier.train(trainData, classes, chunknum)
-  classifier.validate(testData, Y_, classes)
-  e = time()
-  print '[CS61C Project 4] time elapsed: %.2f min' % ((e - s) / 60)
+  classifier.train(trainData, classes, datanum)
+  e1 = time()
+  classifier.validate(testData, classes)
+  e2 = time()
+  print '[CS61C Project 4] training performane: %.2f imgs / sec' % \
+    ((datanum * classifier.iternum) / (e1 - s))
+  print '[CS61C Project 4] time elapsed: %.2f min' % ((e2 - s) / 60.0)
 
   trainData.unpersist()
   testData.unpersist()

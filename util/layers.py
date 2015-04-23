@@ -126,17 +126,14 @@ def conv_backward(df, X, X_col, A, S, P):
   """
   N, K, W_, H_ = df.shape
   _, D, F, _ = A.shape
-  # df_ : [K * (W_ * H_ * N)]
-  df_ = df.transpose(1,2,3,0).reshape(K, -1)
   # dL/dX_col = dL/df * df/dX_col = A * df_ : [(N * H_ * W_) * (D * F * F)]
-  dX_col = np.dot(A.reshape(K, -1).T, df_)
+  dX_col = np.dot(A.reshape(K, -1).T, df.transpose(1,2,3,0).reshape(K, -1))
   # dL/dX : [N * D * H * W]   
   dX = im2col_backward(dX_col, X.shape, F, F, S, P)
   # dL/dA = dL/df * df/dA = X_col_ * df_ : [K * (D * F * F)]
-  dA = np.dot(df_, X_col.T)
+  dA = np.dot(X_col, df.transpose(2,3,0,1).reshape(-1, K))
   # dL/db = sum(dL/df): [K * 1]
   db = np.sum(df, axis=(0, 2, 3)).reshape(K, 1)
-  #db = np.sum(df_, axis=1, keepdims=True) #(0, 2, 3)).reshape(K, 1)
  
   return dX, dA, db
 

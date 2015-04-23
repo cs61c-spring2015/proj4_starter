@@ -1,10 +1,14 @@
-matrix-linear: util/im2col_c.so
-	@python matrix.py linear 5000
+matrix = $(addprefix matrix-, $(classifiers))
+matrix-small = $(addprefix matrix-, $(addsuffix -small, $(classifiers)))
+matrix-large = $(addprefix matrix-, $(addsuffix -large, $(classifiers)))
 
-matrix-nn: util/im2col_c.so
-	@python matrix.py nn 2000
+$(matrix): matrix-%: util/im2col_c.so
+	@python matrix.py $* $(regular)
 
-matrix-cnn: util/im2col_c.so
-	@python matrix.py cnn 10000
+$(matrix-small): matrix-%-small: util/im2col_c.so
+	@python matrix.py $* $(small)
 
-.PHONY: matrix-linear matrix-nn matrix-cnn 
+$(matrix-large): matrix-%-large: util/im2col_c.so
+	@python matrix.py $* $(large)
+
+.PHONY: $(matrix) $(matrix-small) $(matrix-large)

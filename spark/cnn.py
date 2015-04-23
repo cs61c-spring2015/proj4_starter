@@ -155,7 +155,7 @@ class CNNClassifier(Classifier):
 
     """ TODO: Layer10: FC (1 x 1 x 10) forward """
 
-    return data.map(lambda (k, (x, y)): (k, (x, [(np.zeros((1,1)), np.zeros((1,1)))], y))) # replace it with your code
+    return data.map(lambda (k, (x, y)): (k, (x, [(np.array([0]), np.array([0])), np.zeros((x.shape[0], 2))], y))) # replace it with your code
 
   def backward(self, data, count):
     """

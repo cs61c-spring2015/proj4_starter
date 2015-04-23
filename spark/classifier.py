@@ -22,7 +22,7 @@ class Classifier(object):
     """ 
     preprocess the data X
     """
-    return data.map(lambda (k, (x, y)): (k, (x / 255.0 - 5.0, y)))
+    return data.map(lambda (k, (x, y)): (k, (x / 255.0 - 0.5, y)))
 
   def train(self, data, classes, count):
     data = self.preprocess(data)
@@ -44,18 +44,13 @@ class Classifier(object):
     print '[CS61C Project 4] done training'
     return
 
-  def validate(self, data, Y, classes):
+  def validate(self, data, classes):
     print '[CS61C Project 4] test the classifier'
 
     data = self.preprocess(data)
     """ evaluate the scores for test images """
-    f = np.concatenate(self.forward(data).map(lambda (k, v): v[1][-1]).collect())
-    """ calculate accuracy """
-    if Y.shape[0] == f.shape[0]:
-      p = np.argmax(f, axis = 1)
-      print '[CS61C Project 4] accuracy: %.2f' % (np.mean(p == Y))
-    else:
-      print '[CS61C Project 4] wrong scores! implement forward() first!'
+    acc = self.forward(data).map(lambda (k, (x, l, y)): np.argmax(l[-1], axis=1) == y).mean()
+    print '[CS61C Project 4] accuracy: %.2f' % acc
     return
 
   @abstractmethod

@@ -39,7 +39,7 @@ if __name__ == '__main__':
   classifiers = {
     'linear': LinearClassifier(D, H, W, len(classes), 200),
     'nn'    : NNClassifier(D, H, W, len(classes), 50),
-    'cnn'   : CNNClassifier(D, H, W, len(classes), 1, True),
+    'cnn'   : CNNClassifier(D, H, W, len(classes), 10, True),
   }
   classifier = classifiers[name]
 
@@ -50,7 +50,10 @@ if __name__ == '__main__':
     classifier.load("snapshot/cnn/")
   s = time()
   classifier.train(X, Y, classes)
+  e1 = time()
   classifier.validate(X_, Y_, classes)
-  e = time()
-  print '[CS61C Project 4] time elapsed: %.2f min' % ((e - s) / 60)
+  e2 = time()
+  print '[CS61C Project 4] time elapsed: %.2f min' % ((e2 - s) / 60.0)
+  print '[CS61C Project 4] training performane: %.2f imgs / sec' % \
+    ((datanum * classifier.iternum) / (e1 - s))
   log.close()

@@ -65,7 +65,7 @@ class NNClassifier(Classifier):
     Layer 2 : ReLU
     Layer 3 : linear
     """
-    return data.map(lambda (k, (x, y)): (k, (x, np.zeros((1,1)), y))) # replace it with your code
+    return data.map(lambda (k, (x, y)): (k, (x, [np.zeros((x.shape[0], 2))], y))) # replace it with your code
 
   def backward(self, data, count):
     """
@@ -96,7 +96,7 @@ class NNClassifier(Classifier):
 
     """ Todo: Implmenet backpropagation for Layer 1 """
 
-    """ Todo: Compute the gradient on A3 and b3 """
+    """ Todo: Compute the gradient on A1 and b1 """
     dLdA1 = np.zeros(self.A1.shape) # replace it with your code
     dLdb1 = np.zeros(self.b1.shape) # replace it with your code
 
