@@ -66,7 +66,8 @@ class LinearClassifier(Classifier):
                   .map(lambda (x, (L, df)): (x, (L/count, df/count)))
     # comment out the following line if you want to df in dump softmax 
     # to compare it with dLdl3 in matrix/linear.py
-    dump_rdd(sofrmax.map(lambda (x, (L, df)): df), "lin_dLdl1_rdd")
+    # it only works after implemting forward()
+    # dump_rdd(softmax.map(lambda (x, (L, df)): df), "lin_dLdl1_rdd")
     
     """
     Todo: Compute the loss

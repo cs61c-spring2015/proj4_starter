@@ -40,7 +40,7 @@ class LinearClassifier(Classifier):
     """ Layer 1: linear activation """
     layer1 = linear_forward(X, A, b)
     if dump_chunks > 0:
-      dump_big_matrix(layer4, "lin_l1_mat", dump_chunks)
+      dump_big_matrix(layer1, "lin_l1_mat", dump_chunks)
     return [layer1]
 
   def backward(self, X, layers, Y, dump_chunks = -1):
@@ -59,9 +59,9 @@ class LinearClassifier(Classifier):
     """ backpropagation for Layer 1 """
     dLdX, dLdA, dLdb = linear_backward(dLdl1, X, A)
     if dump_chunks > 0:
-      dump_big_matrix(dLdl6, "lin_dLdX_mat", dump_chunks)
-      dump_big_matrix(dLdA7, "lin_dLdA_mat", 1)
-      dump_big_matrix(dLdb7, "lin_dLdb_mat", 1)
+      dump_big_matrix(dLdX, "lin_dLdX_mat", dump_chunks)
+      dump_big_matrix(dLdA, "lin_dLdA_mat", 1)
+      dump_big_matrix(dLdb, "lin_dLdb_mat", 1)
 
     """ regularization gradient """
     dLdA = dLdA.reshape(A.shape)

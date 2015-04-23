@@ -50,7 +50,7 @@ class NNClassifier(Classifier):
   def param(self):
     return [self.A1, self.b1, self.A3, self.b3]
 
-  def forward(self, X):
+  def forward(self, X, dump_chunks = -1):
     A1 = self.A1
     b1 = self.b1
     A3 = self.A3
@@ -72,7 +72,7 @@ class NNClassifier(Classifier):
       dump_big_matrix(layer3, "nn_l3_mat", dump_chunks)
     return [layer1, layer2, layer3]
 
-  def backward(self, X, layers, Y, chunknum = -1):
+  def backward(self, X, layers, Y, dump_chunks = -1):
     A1 = self.A1
     b1 = self.b1
     A3 = self.A3
