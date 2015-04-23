@@ -96,7 +96,7 @@ class NNClassifier(Classifier):
 
     """ Todo: Implmenet backpropagation for Layer 1 """
 
-    """ Todo: Compute the gradient on A3 and b3 """
+    """ Todo: Compute the gradient on A1 and b1 """
     dLdA1 = np.zeros(self.A1.shape) # replace it with your code
     dLdb1 = np.zeros(self.b1.shape) # replace it with your code
 
