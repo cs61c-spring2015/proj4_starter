@@ -50,7 +50,9 @@ class Classifier(object):
 
     data = self.preprocess(data)
     """ evaluate the scores for test images """
-    acc = self.forward(data).map(lambda (k, (x, l, y)): np.argmax(l[-1], axis=1) == y).mean()
+    acc = self.forward(data)\
+	.map(lambda (k, (x, l, y)): (l[-1], y)).cache()\
+	.map(lambda (f, y): np.argmax(f, axis=1) == y).cache().mean()
     print '[CS61C Project 4] accuracy: %.2f' % acc
     return
 
