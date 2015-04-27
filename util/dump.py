@@ -14,7 +14,8 @@ def dump_matrix(x, prefix="mat_", chunknum=1):
   - Nothing
   """
   f = 'dump/' + prefix + '.csv'
-  np.savetxt(f, x.reshape(x.shape[0], -1), fmt="%.10f", delimiter = ',')
+  header = 'sum = ' + str(np.sum(x))
+  np.savetxt(f, x.reshape(x.shape[0], -1), fmt="%.10f", delimiter=',', header=header)
   return
 
 """
@@ -69,7 +70,7 @@ def dump_rdd(rdd, prefix="rdd_"):
 This function dumps a big matrix from matrix versions
 You can divide the matix by 'chunknum'
 """
-def dump_big_matrix(X, prefix="mat", chunknum=1):
+def dump_big_matrix(X, prefix="mat", chunknum=1, axis=0):
   """
   Input:
   - X: numpy array
@@ -81,8 +82,9 @@ def dump_big_matrix(X, prefix="mat", chunknum=1):
   path = 'dump/'
   if not os.path.exists(path):
     os.mkdir(path)
-  l = np.split(X, chunknum)
+  l = np.split(X, chunknum, axis=axis)
   for i, x in enumerate(l):
     f = path + prefix + '_' + str(i) + '.csv'
-    np.savetxt(f, x.reshape(x.shape[0], -1), fmt="%.10f", delimiter = ',')
+    header = 'sum = ' + str(np.sum(x))
+    np.savetxt(f, x.reshape(x.shape[0], -1), fmt="%.10f", delimiter=',', header=header)
   return
