@@ -2,13 +2,13 @@ matrix = $(addprefix matrix-, $(classifiers))
 matrix-small = $(addprefix matrix-, $(addsuffix -small, $(classifiers)))
 matrix-large = $(addprefix matrix-, $(addsuffix -large, $(classifiers)))
 
-$(matrix): matrix-%: util/im2col_c.so
-	@python matrix.py $* $(regular)
+$(matrix): matrix-%: $(im2col)
+	python matrix.py $* $(regular)
 
-$(matrix-small): matrix-%-small: util/im2col_c.so
-	@python matrix.py $* $(small)
+$(matrix-small): matrix-%-small: $(im2col)
+	python matrix.py $* $(small)
 
-$(matrix-large): matrix-%-large: util/im2col_c.so
-	@python matrix.py $* $(large)
+$(matrix-large): matrix-%-large: $(im2col)
+	python matrix.py $* $(large)
 
 .PHONY: $(matrix) $(matrix-small) $(matrix-large)

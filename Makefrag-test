@@ -1,14 +1,13 @@
-core_num := 4
-spark_config := --name "CNNtraining" --master local[$(core_num)] \
+test_config := --name "tests" --master local[4] \
 	--driver-memory 2g --executor-memory 4g
 
 test-linear: util/im2col_c.so
-	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) test.py linear 2> spark.log
+	PYTHONWARNINGS="ignore" spark-submit $(test_config) test.py linear 2> spark.log
 
 test-nn: util/im2col_c.so
-	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) test.py nn 2> spark.log
+	PYTHONWARNINGS="ignore" spark-submit $(test_config) test.py nn 2> spark.log
 
 test-cnn: util/im2col_c.so
-	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) test.py cnn 2> spark.log
+	PYTHONWARNINGS="ignore" spark-submit $(test_config) test.py cnn 2> spark.log
 
 .PHONY: test-linear test-nn test-cnn
