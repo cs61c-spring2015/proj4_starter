@@ -7,7 +7,7 @@ spark-small = $(addprefix spark-, $(addsuffix -small, $(classifiers)))
 spark-large = $(addprefix spark-, $(addsuffix -large, $(classifiers)))
 
 $(spark): spark-%: $(im2col)
-	PYTHONWARNINGS="ignore" spark-submit $(spark_config) $* $(regular) 2> spark.log
+	PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(regular) 2> spark.log
 
 $(spark-small): spark-%-small: $(im2col)
 	PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(small) 2> spark.log

@@ -29,18 +29,19 @@ if __name__ == '__main__':
   classifier = classifiers[name]
 
   """ set spark context and RDDs """
+  master = open("/root/spark-ec2/cluster-url").read().strip()
+  slaves = sum(1 for line in open("/root/spark-ec2/slaves"))
   conf = SparkConf()
   conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-  conf.set("spark.python.worker.memory", "2g")
+  conf.set("spark.python.worker.memory", "50g")
   conf.set("spark.shuffle.consolidateFiles", "true")
-  conf.set("spark.default.parallelism", "96")
-  master = open("/root/spark-ec2/cluster-url").read().strip()
+  conf.set("spark.default.parallelism", str(slaves * 32))
   sc = SparkContext(master=master, environment={'PYTHONPATH':os.getcwd()}, conf=conf)
   trainData = sc.pickleFile("s3n://61c-cnn/" + data)
   testData = sc.pickleFile("s3n://61c-cnn/test")
 
   """ run clssifier """
-  log = open('spark-' + name + '.log', 'w')
+  log = open('ec2-' + name + "-" + data.strip('train-') + '.log', 'w')
   sys.stdout = Log(sys.stdout, log)
   if name == 'cnn':
     classifier.load('snapshot/' + name + '/')

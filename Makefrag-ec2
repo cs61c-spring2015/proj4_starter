@@ -1,5 +1,5 @@
 url           ?= spark://$(master):7077
-ec2_config    := --driver-memory 2g --executor-memory 16g
+ec2_config    := --driver-memory 10g --executor-memory 50g
 root_dir      := /root
 spark_dir     := $(root_dir)/spark/bin
 spark_ec2_dir := $(root_dir)/spark-ec2
