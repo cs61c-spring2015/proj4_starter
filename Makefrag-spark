@@ -1,18 +1,17 @@
 core_num ?= 8
-spark_config = --name "spark" --master local[$(core_num)] \
-	--driver-memory 4g --executor-memory 4g
+spark_config = --master local[$(core_num)] --driver-memory 4g --executor-memory 4g
 
 spark = $(addprefix spark-, $(classifiers))
 spark-small = $(addprefix spark-, $(addsuffix -small, $(classifiers)))
 spark-large = $(addprefix spark-, $(addsuffix -large, $(classifiers)))
 
 $(spark): spark-%: $(im2col)
-	PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(regular) 2> spark.log
+	PYTHONWARNINGS="ignore" spark-submit --name $@ $(spark_config) spark.py $* $(regular) 2> spark.log
 
 $(spark-small): spark-%-small: $(im2col)
-	PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(small) 2> spark.log
+	PYTHONWARNINGS="ignore" spark-submit --name $@ $(spark_config) spark.py $* $(small) 2> spark.log
 
 $(spark-large): spark-%-large: $(im2col)
-	PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(large) 2> spark.log
+	PYTHONWARNINGS="ignore" spark-submit --name $@ $(spark_config) spark.py $* $(large) 2> spark.log
 
 .PHONY: $(spark) $(spark-small) $(spark-large)

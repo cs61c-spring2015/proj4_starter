@@ -1,6 +1,7 @@
 matrix = $(addprefix matrix-, $(classifiers))
 matrix-small = $(addprefix matrix-, $(addsuffix -small, $(classifiers)))
 matrix-large = $(addprefix matrix-, $(addsuffix -large, $(classifiers)))
+matrix-huge  = $(addprefix matrix-, $(addsuffix -huge, $(classifiers)))
 
 $(matrix): matrix-%: $(im2col)
 	python matrix.py $* $(regular)
@@ -11,4 +12,7 @@ $(matrix-small): matrix-%-small: $(im2col)
 $(matrix-large): matrix-%-large: $(im2col)
 	python matrix.py $* $(large)
 
-.PHONY: $(matrix) $(matrix-small) $(matrix-large)
+$(matrix-huge): matrix-%-huge: $(im2col)
+	python matrix.py $* $(huge)
+
+.PHONY: $(matrix) $(matrix-small) $(matrix-large) $(matrix-huge)

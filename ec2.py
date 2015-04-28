@@ -1,5 +1,5 @@
 import numpy as np
-from pyspark import SparkContext, SparkConf
+from pyspark import SparkContext, SparkConf, StorageLevel
 from util.util import *
 from spark.linear import LinearClassifier
 from spark.nn import NNClassifier
@@ -7,6 +7,8 @@ from spark.cnn import CNNClassifier
 from time import time
 import sys
 import os
+
+global main_file = 'ec2'
 
 if __name__ == '__main__':
   """ parse args """
@@ -33,22 +35,24 @@ if __name__ == '__main__':
   slaves = sum(1 for line in open("/root/spark-ec2/slaves"))
   conf = SparkConf()
   conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-  conf.set("spark.python.worker.memory", "50g")
-  conf.set("spark.shuffle.consolidateFiles", "true")
+  conf.set("spark.eventLog.enabled", "TRUE")
+  conf.set("spark.shuffle.spill", "false")
   conf.set("spark.default.parallelism", str(slaves * 32))
+  conf.set("spark.task.cpus", "4")
+  conf.set("spark.akka.frameSize", str(int(datanum * 0.025)))
   sc = SparkContext(master=master, environment={'PYTHONPATH':os.getcwd()}, conf=conf)
-  trainData = sc.pickleFile("s3n://61c-cnn/" + data)
-  testData = sc.pickleFile("s3n://61c-cnn/test")
+  trainData = sc.pickleFile("s3n://61c-cnn/" + data, slaves * 32)
+  testData = sc.pickleFile("s3n://61c-cnn/test", slaves * 32)
 
   """ run clssifier """
-  log = open('ec2-' + name + "-" + data.strip('train-') + '.log', 'w')
+  log = open('ec2-' + name + data.strip('train') + '.log', 'w')
   sys.stdout = Log(sys.stdout, log)
   if name == 'cnn':
     classifier.load('snapshot/' + name + '/')
   s = time()
-  classifier.train(trainData, [], datanum)
+  classifier.train(trainData, [], datanum, is_ec2=True)
   e1 = time()
-  classifier.validate(testData, [])
+  classifier.validate(testData, [], is_ec2=True)
   e2 = time()
   print '[CS61C Project 4] training performane: %.2f imgs / sec' % \
     ((datanum * classifier.iternum) / (e1 - s))

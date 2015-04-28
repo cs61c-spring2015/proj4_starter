@@ -6,6 +6,7 @@ Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/se
 ec2-cnn        |    2000     |                    |                                |
 ec2-cnn-large  |    8000     |                    |                                |
 ec2-cnn-huge   |   20000     |                    |                                |
+ec2-cnn-full   |   50000     |                    |                                |
 
 2. Fill in the table from 10 slaves.
 Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 10000 imgs
@@ -13,6 +14,7 @@ Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/se
 ec2-cnn        |    2000     |                    |                                |
 ec2-cnn-large  |    8000     |                    |                                |
 ec2-cnn-huge   |   20000     |                    |                                |
+ec2-cnn-full   |   50000     |                    |                                |
 
 3. Fill in the table from 20 slaves.
 Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 10000 imgs
@@ -20,6 +22,7 @@ Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/se
 ec2-cnn        |    2000     |                    |                                |
 ec2-cnn-large  |    8000     |                    |                                |
 ec2-cnn-huge   |   20000     |                    |                                |
+ec2-cnn-full   |   50000     |                    |                                |
 
 4. What is the speed-up of 10 slaves and 20 slaves over 6 slaves? What can you conclude on the data size and parallelism? 
 Is this a case of strong scaling or weak scaling?
@@ -28,5 +31,6 @@ Benchmark      | # of Images |  speed-up of 10 slaves  |  speed-up of 20 slaves 
 ec2-cnn        |    2000     |                         |                         |
 ec2-cnn-large  |    8000     |                         |                         |
 ec2-cnn-huge   |   20000     |                         |                         |
+ec2-cnn-full   |   50000     |                         |                         |
 
 5. How many dollars in EC2 credits did you use to complete this project?
