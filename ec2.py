@@ -8,8 +8,6 @@ from time import time
 import sys
 import os
 
-global main_file = 'ec2'
-
 if __name__ == '__main__':
   """ parse args """
   name = 'linear'
