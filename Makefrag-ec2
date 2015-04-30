@@ -15,28 +15,32 @@ copydir:
 	$(spark_ec2_dir)/copy-dir --delete $(shell pwd)
 	$(spark_ec2_dir)/copy-dir $(shell pwd)
 
+ec2-cnn-test: copydir $(im2col)
+	source $(ec2_env) && \
+	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ $(ec2_config) ec2-test.py cnn train-small $(regular) 2> ec2.log
+  
 $(ec2): ec2-%: copydir $(im2col)  
 	source $(ec2_env) && \
-	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ $(ec2-config) ec2.py $* train $(regular) 2> ec2.log
+	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ $(ec2_config) ec2_test.py $* train $(regular) 2> ec2_test.log
 
 $(ec2-small): ec2-%-small: copydir $(im2col) 
 	$(spark_ec2_dir)/copy-dir $(shell pwd)
 	source $(ec2_env) && \
-	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ $(ec2-config) ec2.py $* train-small $(small) 2> ec2.log
+	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ $(ec2_config) ec2.py $* train-small $(small) 2> ec2.log
 
 $(ec2-large): ec2-%-large: copydir $(im2col) 
 	$(spark_ec2_dir)/copy-dir $(shell pwd)
 	source $(ec2_env) && \
-	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ ec2.py $(ec2-config) $* train-large $(large) 2> ec2.log
+	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ $(ec2_config) ec2.py $* train-large $(large) 2> ec2.log
 
 $(ec2-huge): ec2-%-huge: copydir $(im2col)
 	$(spark_ec2_dir)/copy-dir $(shell pwd)
 	source $(ec2_env) && \
-	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ ec2.py $(ec2-config) $* train-huge $(huge) 2> ec2.log
+	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ $(ec2_config) ec2.py $* train-huge $(huge) 2> ec2.log
 
 $(ec2-full): ec2-%-full: copydir $(im2col)
 	$(spark_ec2_dir)/copy-dir $(shell pwd)
 	source $(ec2_env) && \
-	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ ec2.py $(ec2-config) $* train-full $(full) 2> ec2.log
+	PYTHONWARNINGS="ignore" $(spark_dir)/spark-submit --name $@ $(ec2_config) ec2.py $* train-full $(full) 2> ec2.log
 
 .PHONY: $(ec2) $(ec2-small) $(ec2-large) $(ec2-huge)

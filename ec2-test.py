@@ -34,13 +34,11 @@ if __name__ == '__main__':
   conf = SparkConf()
   conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
   conf.set("spark.eventLog.enabled", "TRUE")
-  conf.set("spark.shuffle.spill", "false")
-  conf.set("spark.default.parallelism", str(slaves * 32))
-  conf.set("spark.task.cpus", "4")
-  conf.set("spark.akka.frameSize", str(int(datanum * 0.025)))
+  conf.set("spark.default.parallelism", str(slaves * 2))
+  conf.set("spark.akka.frameSize", "50")
   sc = SparkContext(master=master, environment={'PYTHONPATH':os.getcwd()}, conf=conf)
-  trainData = sc.pickleFile("s3n://61c-cnn/" + data, 320)
-  testData = sc.pickleFile("s3n://61c-cnn/test", 320)
+  trainData = sc.pickleFile("s3n://61c-cnn/" + data, slaves * 4)\
+                .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
   """ run clssifier """
   log = open('ec2-' + name + data.strip('train') + '.log', 'w')
@@ -49,12 +47,12 @@ if __name__ == '__main__':
     classifier.load('snapshot/' + name + '/')
   s = time()
   classifier.train(trainData, [], datanum, is_ec2=True)
-  e1 = time()
-  classifier.validate(testData, [], is_ec2=True)
-  e2 = time()
+  e = time()
+  """ skip validation """
   print '[CS61C Project 4] training performane: %.2f imgs / sec' % \
-    ((datanum * classifier.iternum) / (e1 - s))
-  print '[CS61C Project 4] time elapsed: %.2f min' % ((e2 - s) / 60.0)
+    ((datanum * classifier.iternum) / (e - s))
+  print '[CS61C Project 4] time elapsed: %.2f min' % ((e - s) / 60.0)
 
+  trainData.unpersist()
   sc.stop()
   log.close()
