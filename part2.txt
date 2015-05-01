@@ -1,14 +1,14 @@
 * Note that an ec2.x8large instance costs $1.680 / hour.
 
 1. Fill in the table from 5 slaves.
-Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 10000 imgs
+Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 50000 imgs
 ----------------------------------------------------------------------------------------------------
 ec2-cnn-large  |    8000     |                    |                                |
 ec2-cnn-huge   |   20000     |                    |                                |
 ec2-cnn-full   |   50000     |                    |                                |
 
 2. Fill in the table from 10 slaves.
-Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 10000 imgs
+Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 50000 imgs
 ----------------------------------------------------------------------------------------------------
 ec2-cnn-large  |    8000     |                    |                                |
 ec2-cnn-huge   |   20000     |                    |                                |

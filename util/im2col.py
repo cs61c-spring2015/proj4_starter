@@ -47,7 +47,7 @@ def im2col_forward(X, F1, F2, S, P):
   - S:  stride of convolution
   - P:  size of zero padding
   Output:
-  - X_col: [(D * F1 * F2) * (H_ * W_) * N] -> column stretched matrix
+  - X_col: [(D * F1 * F2) * (H_ * W_ * N)] -> column stretched matrix
   """
   N, D, H, W = X.shape
   H_ = (H - F1 + 2*P) / S + 1
@@ -58,7 +58,7 @@ def im2col_forward(X, F1, F2, S, P):
   # get indices for X: [(D*F1*F2*H_*W_) * 1]
   d, h, w = im2col_indices(D, F1, F2, H_, W_, S)
   # compute X_col
-  X_col = X_pad[d, h, w, :].reshape(D*F1*F2, H_*W_, N)
+  X_col = X_pad[d, h, w, :].reshape(D*F1*F2, -1)
 
   return X_col
 
@@ -66,7 +66,7 @@ def im2col_backward(dX_col, dim, F1, F2, S, P):
   """
   Helper function for conv_backward & max_pool_backward
   Input:
-  - dX_col: [N * (D * F1 * F2) * (W_ * H_)] -> gradient on X_col
+  - dX_col: [(D * F1 * F2) * (W_ * H_ * N)] -> gradient on X_col
   - dim:    X's dimension(N, W, H, D)
   - F1:     height of convolution
   - F2:     width of convolution
@@ -79,12 +79,12 @@ def im2col_backward(dX_col, dim, F1, F2, S, P):
   H_ = (H - F1 + 2*P) / S + 1
   W_ = (W - F2 + 2*P) / S + 1
 
-  # initialize dX: [N * D * (H+2P) * (W+2P) * N]
+  # initialize dX: [N * D * (H+2P) * (W+2P)]
   dX = np.zeros((N, D, H + 2*P, W + 2*P))
   # get indices for dX: [(D*F1*F2*H_*W_) * 1]
   d, h, w = im2col_indices(D, F1, F2, H_, W_, S)
   # compute dX: [N * D * H * W]
-  np.add.at(dX, (slice(None), d, h, w), dX_col.reshape(N,-1))
+  np.add.at(dX, (slice(None), d, h, w), dX_col.reshape(-1,N).T)
   if P > 0:
     dX = dX[:,:, P:-P, P:-P] # remove zero-pads
 
