@@ -1,0 +1,26 @@
+* Note that an ec2.x8large instance costs $1.680 / hour.
+
+1. Fill in the table from 5 slaves.
+Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 50000 imgs
+----------------------------------------------------------------------------------------------------
+ec2-cnn-large  |    8000     |                    |                                |
+ec2-cnn-huge   |   20000     |                    |                                |
+ec2-cnn-full   |   50000     |                    |                                |
+
+2. Fill in the table from 10 slaves.
+Benchmark      | # of Images | Total Runtime(min) | Training Performance(imgs/sec) | $ / 50000 imgs
+----------------------------------------------------------------------------------------------------
+ec2-cnn-large  |    8000     |                    |                                |
+ec2-cnn-huge   |   20000     |                    |                                |
+ec2-cnn-full   |   50000     |                    |                                |
+
+3. What is the speed-up of 10 slaves over 5 slaves? What can you conclude on the data size and parallelism? 
+Is this a case of strong scaling or weak scaling?
+Benchmark      | # of Images |      speed-up      |
+---------------------------------------------------
+ec2-cnn-large  |    8000     |                    |                         
+ec2-cnn-huge   |   20000     |                    |                         
+ec2-cnn-full   |   50000     |                    |                         
+
+4. How many dollars in EC2 credits did you use to complete this project?
+
