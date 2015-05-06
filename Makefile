@@ -17,6 +17,6 @@ include Makefrag-ec2
 
 clean:
 	rm -rf *.pyc matrix/*.pyc spark/*.pyc util/*.pyc test/__init__.pyc *.log dump/
-	rm -rf im2col/im2col_c.c util/im2col_c.so 
+	rm -rf im2col/im2col_c.c util/im2col_c.so util/build
 
 .PHONY: clean
