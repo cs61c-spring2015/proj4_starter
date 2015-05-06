@@ -1,18 +1,17 @@
 core_num ?= 8
-spark_config := --name "CNNtraining" --master local[$(core_num)] \
-	--driver-memory 4g --executor-memory 4g
+spark_config = --master local[$(core_num)] --driver-memory 4g --executor-memory 4g
 
 spark = $(addprefix spark-, $(classifiers))
 spark-small = $(addprefix spark-, $(addsuffix -small, $(classifiers)))
 spark-large = $(addprefix spark-, $(addsuffix -large, $(classifiers)))
 
-$(spark): spark-%: util/im2col_c.so
-	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(regular) 2> spark.log
+$(spark): spark-%: $(im2col)
+	PYTHONWARNINGS="ignore" spark-submit --name $@ $(spark_config) spark.py $* $(regular) 2> spark.log
 
-$(spark-small): spark-%-small: util/im2col_c.so
-	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(small) 2> spark.log
+$(spark-small): spark-%-small: $(im2col)
+	PYTHONWARNINGS="ignore" spark-submit --name $@ $(spark_config) spark.py $* $(small) 2> spark.log
 
-$(spark-large): spark-%-large: util/im2col_c.so
-	@PYTHONWARNINGS="ignore" spark-submit $(spark_config) spark.py $* $(large) 2> spark.log
+$(spark-large): spark-%-large: $(im2col)
+	PYTHONWARNINGS="ignore" spark-submit --name $@ $(spark_config) spark.py $* $(large) 2> spark.log
 
 .PHONY: $(spark) $(spark-small) $(spark-large)

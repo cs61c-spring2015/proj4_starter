@@ -2,8 +2,10 @@ regular     := 2000
 small       := 500
 large       := 8000
 classifiers := linear nn cnn
+im2col_src  := $(addprefix util/, im2col_c.pyx im2col.c im2col.h)
+im2col      := util/im2col_c.so
 
-util/im2col_c.so: util/im2col_c.pyx util/im2col.c util/im2col.h
+$(im2col): $(im2col_src) 
 	@cd util && python setup.py build_ext -i
 
 include Makefrag-matrix
