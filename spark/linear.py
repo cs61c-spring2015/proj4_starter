@@ -40,55 +40,49 @@ class LinearClassifier(Classifier):
   def forward(self, data):
     """
     INPUT:
-      - data: RDD[(key, (image, class)) pairs]
+      - data: RDD[(key, (images, labels)) pairs]
     OUTPUT:
-      - RDD[(key, (image, list of layers, class)) pairs]
+      - RDD[(key, (images, list of layers, labels)) pairs]
     """
     """ 
     Layer 1: linear 
     Todo: Implement the forward pass of Layer1
     """
-
     return data.map(lambda (k, (x, y)): (k, (x, [np.zeros((x.shape[0], 2))], y))) # Replace it with your code
 
   def backward(self, data, count):
     """
     INPUT:
-      - data: RDD[(image, list of layers, labels) pairs]
+      - data: RDD[(images, list of layers, labels) pairs]
     OUTPUT:
       - loss
     """
-    """ 
-    softmax loss layer
-    (images, scores, labels) pairs -> (images, (loss, gradient))
-    """
-    softmax = data.map(lambda (x, l, y): (x, softmax_loss(l[-1], y))) \
-                  .map(lambda (x, (L, df)): (x, (L/count, df/count)))
-    # comment out the following line if you want to df in dump softmax 
-    # to compare it with dLdl3 in matrix/linear.py
-    # it only works after implemting forward()
-    # dump_rdd(softmax.map(lambda (x, (L, df)): df), "lin_dLdl1_rdd")
-    
-    """
-    Todo: Compute the loss
-    Hint: You need to reduce the RDD from 'softmax loss layer'
-    """
-    L = 0.0 # replace it with your code
- 
-    """ regularization: loss = 1/2 * lam * sum_nk(A_nk * A_nk) """
-    L += 0.5 * self.lam * np.sum(self.A * self.A) 
 
+    """ 
+    TODO: Implement softmax loss layer
+    (images, scores, labels pairs -> (images, (loss, gradient))
+    """
+ 
     """ 
     Todo: Implement backpropagation for Layer 1 
     """
-    
+
     """
-    Todo: Calculate the gradients on A & b
+    Todo: Compute the loss and the gradients A & B
     Hint: You need to reduce the RDD from 'backpropagation for Layer 1'
-          Also check the output of the backward function
+          Also check the output of the loss and the backward function
     """
-    dLdA = np.zeros(self.A.shape) # replace it with your code
-    dLdb = np.zeros(self.b.shape) # replace it with your code
+    L = 0.0
+    dLdA = np.zeros(self.A.shape)
+    dLdb = np.zeros(self.b.shape)
+
+    """ gradient scaling """
+    L /= float(count)
+    dLdA /= float(count)
+    dLdb /= float(count)
+
+    """ regularization: loss = 1/2 * lam * sum_nk(A_nk * A_nk) """
+    L += 0.5 * self.lam * np.sum(self.A * self.A) 
 
     """ regularization gradient """
     dLdA = dLdA.reshape(self.A.shape)

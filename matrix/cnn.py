@@ -159,79 +159,71 @@ class CNNClassifier(Classifier):
     e = time()
     if self.verbose:
       print """ Layer1: Conv (32 x 32 x 16) forward doen: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(layer1, "cnn_l1_mat", dump_chunks)
  
     s = time()
     layer2 = ReLU_forward(layer1)
     e = time()
     if self.verbose:
       print """ Layer2: ReLU (32 x 32 x 16) forward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(layer2, "cnn_l2_mat", dump_chunks)
 
     s = time()
     layer3, X_idx3 = max_pool_forward(layer2, F3, S3)
     e = time()
     if self.verbose:
       print """ Layer3: Pool (16 x 16 x 16) forward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(layer3, "cnn_l3_mat", dump_chunks)
 
     s = time()
     layer4, X_col4 = conv_forward(layer3, A4, b4, S4, P4)
     e = time()
     if self.verbose:
       print """ Layer4: Conv (16 x 16 x 20) forward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(layer4, "cnn_l4_mat", dump_chunks)
 
     s = time()
     layer5  = ReLU_forward(layer4)
     e = time()
     if self.verbose:
       print """ Layer5: ReLU (16 x 16 x 20) forward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(layer5, "cnn_l5_mat", dump_chunks)
 
     s = time()
     layer6, X_idx6 = max_pool_forward(layer5, F6, S6)
     e = time()
     if self.verbose:
       print """ Layer6: Pool (8 x 8 x 20) forward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(layer6, "cnn_l6_mat", dump_chunks)
 
     s = time()
     layer7, X_col7 = conv_forward(layer6, A7, b7, S7, P7)
     e = time()
     if self.verbose:
       print """ Layer7: Conv (8 x 8 x 20) forward: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(layer7, "cnn_l7_mat", dump_chunks)
 
     s = time()
     layer8 = ReLU_forward(layer7)
     e = time()
     if self.verbose:
       print """ Layer8: ReLU (8 x 8 x 20) forward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(layer8, "cnn_l8_mat", dump_chunks)
 
     s = time()
     layer9, X_idx9 = max_pool_forward(layer8, F9, S9)
     e = time()
     if self.verbose:
       print """ Layer9: Pool (4 x 4 x 20) forward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(layer9, "cnn_l9_mat", dump_chunks)
 
     s = time()
     layer10 = linear_forward(layer9, A10, b10)
     e = time()
     if self.verbose:
       print """ Layer10: FC (1 x 1 x 10) forward done: %.2f sec """ % (e - s)
+
     if dump_chunks > 0:
+      dump_big_matrix(layer1, "cnn_l1_mat", dump_chunks)
+      dump_big_matrix(layer2, "cnn_l2_mat", dump_chunks)
+      dump_big_matrix(layer3, "cnn_l3_mat", dump_chunks)
+      dump_big_matrix(layer4, "cnn_l4_mat", dump_chunks)
+      dump_big_matrix(layer5, "cnn_l5_mat", dump_chunks)
+      dump_big_matrix(layer6, "cnn_l6_mat", dump_chunks)
+      dump_big_matrix(layer7, "cnn_l7_mat", dump_chunks)
+      dump_big_matrix(layer8, "cnn_l8_mat", dump_chunks)
+      dump_big_matrix(layer9, "cnn_l9_mat", dump_chunks)
       dump_big_matrix(layer10, "cnn_l10_mat", dump_chunks)
 
     return [
@@ -276,24 +268,12 @@ class CNNClassifier(Classifier):
     e = time()
     if self.verbose:
       print """ Softmax loss calc done : %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl10, "cnn_dLdl10_mat", dump_chunks)
-
-    """ regularization """
-    L += 0.5 * self.lam * np.sum(A1*A1)
-    L += 0.5 * self.lam * np.sum(A4*A4)
-    L += 0.5 * self.lam * np.sum(A7*A7)
-    L += 0.5 * self.lam * np.sum(A10*A10)
 
     s = time()
     dLdl9, dLdA10, dLdb10 = linear_backward(dLdl10, layer9 , A10)
     e = time()
     if self.verbose:
       print """ Layer10: FC (1 x 1 x 10) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl9, "cnn_dLdl9_mat", dump_chunks)
-      dump_big_matrix(dLdA10, "cnn_dLdA10_mat", 1)
-      dump_big_matrix(dLdb10, "cnn_dLdA10_mat", 1)
 
     """ Pool (4 x 4 x 20) Backward """
     s = time()
@@ -301,78 +281,60 @@ class CNNClassifier(Classifier):
     e = time()
     if self.verbose:
       print """ Layer9: Pool (4 x 4 x 20) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl8, "cnn_dLdl8_mat", dump_chunks)
 
     s = time()
     dLdl7 = ReLU_backward(dLdl8, layer7)
     e = time()
     if self.verbose:
       print """ Layer8: ReLU (8 x 8 x 20) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl7, "cnn_dLdl7_mat", dump_chunks)
 
     s = time()
     dLdl6, dLdA7, dLdb7 = conv_backward(dLdl7, layer6, X_col7, A7, S7, P7)
     e = time()
     if self.verbose:
       print """ Layer7: Conv (8 x 8 x 20) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl6, "cnn_dLdl6_mat", dump_chunks)
-      dump_big_matrix(dLdA7, "cnn_dLdA7_mat", 1)
-      dump_big_matrix(dLdb7, "cnn_dLdA7_mat", 1)
 
     s = time()
     dLdl5 = max_pool_backward(dLdl6, layer5, X_idx6, F6, S6)
     e = time()
     if self.verbose:
       print """ Layer6: Pool (8 x 8 x 20) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl5, "cnn_dLdl5_mat", dump_chunks)
 
     s = time()
     dLdl4 = ReLU_backward(dLdl5, layer4)
     e = time()
     if self.verbose:
       print """ Layer5: ReLU (16 x 16 x 20) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl4, "cnn_dLdl4_mat", dump_chunks)
 
     s = time()
     dLdl3, dLdA4, dLdb4 = conv_backward(dLdl4, layer3, X_col4, A4, S4, P4)
     e = time()
     if self.verbose:
       print """ Layer4: Conv (16 x 16 x 20) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl3, "cnn_dLdl3_mat", dump_chunks)
-      dump_big_matrix(dLdA4, "cnn_dLdA4_mat", 1)
-      dump_big_matrix(dLdb4, "cnn_dLdA4_mat", 1)
 
     s = time()
     dLdl2 = max_pool_backward(dLdl3, layer2, X_idx3, F3, S3)
     e = time()
     if self.verbose:
       print """ Layer3: Pool (16 x 16 x 16) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl2, "cnn_dLdl2_mat", dump_chunks)
 
     s = time()
     dLdl1 = ReLU_backward(dLdl2, layer1)
     e = time()
     if self.verbose:
       print """ Layer2: ReLU (32 x 32 x 16) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl1, "cnn_dLdl1_mat", dump_chunks)
 
     s = time()
     dLdX, dLdA1, dLdb1 = conv_backward(dLdl1, X, X_col1, A1, S1, P1)
     e = time()
     if self.verbose:
       print """ Layer1: Conv (32 x 32 x 16) backward done: %.2f sec """ % (e - s)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdX, "cnn_dLdX_mat", dump_chunks)
-      dump_big_matrix(dLdA1, "cnn_dLdA1_mat", 1)
-      dump_big_matrix(dLdb1, "cnn_dLdA1_mat", 1)
+
+    """ regularization """
+    L += 0.5 * self.lam * np.sum(A1*A1)
+    L += 0.5 * self.lam * np.sum(A4*A4)
+    L += 0.5 * self.lam * np.sum(A7*A7)
+    L += 0.5 * self.lam * np.sum(A10*A10)
 
     """ regularization gradient """
     dLdA10 = dLdA10.reshape(A10.shape)
@@ -398,5 +360,26 @@ class CNNClassifier(Classifier):
     self.b7 += -self.rho * dLdb7
     self.b10 += -self.rho * dLdb10
 
-    return L
+    """ dump """
+    if dump_chunks > 0:
+      dump_big_matrix(dLdl10, "cnn_dLdl10_mat", dump_chunks)
+      dump_big_matrix(dLdl9, "cnn_dLdl9_mat", dump_chunks)
+      dump_big_matrix(dLdl8, "cnn_dLdl8_mat", dump_chunks)
+      dump_big_matrix(dLdl7, "cnn_dLdl7_mat", dump_chunks)
+      dump_big_matrix(dLdl6, "cnn_dLdl6_mat", dump_chunks)
+      dump_big_matrix(dLdl5, "cnn_dLdl5_mat", dump_chunks)
+      dump_big_matrix(dLdl4, "cnn_dLdl4_mat", dump_chunks)
+      dump_big_matrix(dLdl3, "cnn_dLdl3_mat", dump_chunks)
+      dump_big_matrix(dLdl2, "cnn_dLdl2_mat", dump_chunks)
+      dump_big_matrix(dLdl1, "cnn_dLdl1_mat", dump_chunks)
+      dump_big_matrix(dLdX, "cnn_dLdX_mat", dump_chunks)
+      dump_big_matrix(dLdA10, "cnn_dLdA10_mat", 1)
+      dump_big_matrix(dLdb10, "cnn_dLdb10_mat", 1)
+      dump_big_matrix(dLdA7, "cnn_dLdA7_mat", 1)
+      dump_big_matrix(dLdb7, "cnn_dLdb7_mat", 1)
+      dump_big_matrix(dLdA4, "cnn_dLdA4_mat", 1)
+      dump_big_matrix(dLdb4, "cnn_dLdb4_mat", 1)
+      dump_big_matrix(dLdA1, "cnn_dLdA1_mat", 1)
+      dump_big_matrix(dLdb1, "cnn_dLdb1_mat", 1)
 
+    return L
