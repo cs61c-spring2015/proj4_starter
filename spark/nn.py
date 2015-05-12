@@ -99,7 +99,7 @@ class NNClassifier(Classifier):
     dLdb1 /= float(count)
      
     """ regularization """
-    L += 0.5 * self.lam * (np.sum(A1*A1) + np.sum(A3*A3))
+    L += 0.5 * self.lam * (np.sum(self.A1*self.A1) + np.sum(self.A3*self.A3))
  
     """ regularization gradient """
     dLdA3 = dLdA3.reshape(self.A3.shape)
