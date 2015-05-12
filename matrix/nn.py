@@ -115,8 +115,8 @@ class NNClassifier(Classifier):
       dump_big_matrix(dLdl1, "nn_dLdl1_mat", dump_chunks)
       dump_big_matrix(dLdX, "nn_dLdX_mat", dump_chunks)
       dump_big_matrix(dLdA3, "nn_dLdA3_mat", 1)
-      dump_big_matrix(dLdb3, "nn_dLdA3_mat", 1)
+      dump_big_matrix(dLdb3, "nn_dLdb3_mat", 1)
       dump_big_matrix(dLdA1, "nn_dLdA1_mat", 1)
-      dump_big_matrix(dLdb1, "nn_dLdA1_mat", 1)
+      dump_big_matrix(dLdb1, "nn_dLdb1_mat", 1)
 
     return L
