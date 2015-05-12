@@ -210,10 +210,10 @@ class CNNClassifier(Classifier):
     dLdb10 /= float(count)
 
     """ regularization """
-    L += 0.5 * self.lam * np.sum(A1*A1)
-    L += 0.5 * self.lam * np.sum(A4*A4)
-    L += 0.5 * self.lam * np.sum(A7*A7)
-    L += 0.5 * self.lam * np.sum(A10*A10)
+    L += 0.5 * self.lam * np.sum(self.A1*self.A1)
+    L += 0.5 * self.lam * np.sum(self.A4*self.A4)
+    L += 0.5 * self.lam * np.sum(self.A7*self.A7)
+    L += 0.5 * self.lam * np.sum(self.A10*self.A10)
 
     """ regularization gradient """
     dLdA10 = dLdA10.reshape(self.A10.shape)
