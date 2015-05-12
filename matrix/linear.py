@@ -37,10 +37,13 @@ class LinearClassifier(Classifier):
   def forward(self, X, dump_chunks = -1):
     A = self.A
     b = self.b
+
     """ Layer 1: linear activation """
     layer1 = linear_forward(X, A, b)
+
     if dump_chunks > 0:
       dump_big_matrix(layer1, "lin_l1_mat", dump_chunks)
+
     return [layer1]
 
   def backward(self, X, layers, Y, dump_chunks = -1):
@@ -50,18 +53,12 @@ class LinearClassifier(Classifier):
 
     """ softmax classification """
     L, dLdl1 = softmax_loss(layer1, Y)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdl1, "lin_dLdl1_mat", dump_chunks)
-
-    """ regularization: loss = 1/2 * lam * sum_nk(A_nk * A_nk) """
-    L += 0.5 * self.lam * np.sum(A * A) 
 
     """ backpropagation for Layer 1 """
     dLdX, dLdA, dLdb = linear_backward(dLdl1, X, A)
-    if dump_chunks > 0:
-      dump_big_matrix(dLdX, "lin_dLdX_mat", dump_chunks)
-      dump_big_matrix(dLdA, "lin_dLdA_mat", 1)
-      dump_big_matrix(dLdb, "lin_dLdb_mat", 1)
+
+    """ regularization: loss = 1/2 * lam * sum_nk(A_nk * A_nk) """
+    L += 0.5 * self.lam * np.sum(A * A) 
 
     """ regularization gradient """
     dLdA = dLdA.reshape(A.shape)
@@ -71,5 +68,11 @@ class LinearClassifier(Classifier):
     self.v = self.mu * self.v - self.rho * dLdA
     self.A += self.v
     self.b += -self.rho * dLdb
+
+    if dump_chunks > 0:
+      dump_big_matrix(dLdl1, "lin_dLdl1_mat", dump_chunks)
+      dump_big_matrix(dLdX, "lin_dLdX_mat", dump_chunks)
+      dump_big_matrix(dLdA, "lin_dLdA_mat", 1)
+      dump_big_matrix(dLdb, "lin_dLdb_mat", 1)
 
     return L

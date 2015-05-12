@@ -1,4 +1,5 @@
 import numpy as np
+from pyspark import StorageLevel
 from abc import ABCMeta, abstractmethod
 from time import time
 
@@ -24,14 +25,16 @@ class Classifier(object):
     """
     return data.map(lambda (k, (x, y)): (k, (x / 255.0 - 0.5, y)))
 
-  def train(self, data, classes, count):
+  def train(self, data, classes, count, is_ec2 = False):
     data = self.preprocess(data)
     print '[CS61C Project 4] start classifier training'
 
     for i in xrange(self.iternum):
       s = time()
       """ evaluate scores """
-      f = self.forward(data).map(lambda v: v[1])
+      f = self.forward(data).map(lambda v: v[1]).persist(StorageLevel.MEMORY_AND_DISK_SER) \
+        if is_ec2 else \
+          self.forward(data).map(lambda v: v[1])
       """ 
       1) evaluate loss and gradients 
       2) tune the parameters
@@ -44,12 +47,15 @@ class Classifier(object):
     print '[CS61C Project 4] done training'
     return
 
-  def validate(self, data, classes):
+  def validate(self, data, classes, is_ec2 = False):
     print '[CS61C Project 4] test the classifier'
 
     data = self.preprocess(data)
     """ evaluate the scores for test images """
-    acc = self.forward(data).map(lambda (k, (x, l, y)): np.argmax(l[-1], axis=1) == y).mean()
+    f = self.forward(data).map(lambda (k, (x, l, y)): (l[-1], y))\
+      .persist(StorageLevel.MEMORY_AND_DISK_SER) if is_ec2 else \
+        self.forward(data).map(lambda (k, (x, l, y)): (l[-1], y))
+    acc = f.map(lambda (f, y): np.argmax(f, axis=1) == y).cache().mean()
     print '[CS61C Project 4] accuracy: %.2f' % acc
     return
 

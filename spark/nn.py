@@ -2,7 +2,6 @@ import numpy as np
 import cPickle as pickle
 from classifier import Classifier
 from util.layers import *
-from util.dump import *
 
 """ STEP2: Build Two-layer Fully-Connected Neural Network """
 
@@ -78,28 +77,29 @@ class NNClassifier(Classifier):
     TODO: Implement softmax loss layer 
     """
 
-    """
-    TODO: Compute the loss
-    """
-    L = 0.0 # replace it with your code
-
-    """ regularization """
-    L += 0.5 * self.lam * (np.sum(self.A1*self.A1) + np.sum(self.A3*self.A3))
-
     """ Todo: Implement backpropagation for Layer 3 """
 
-    """ Todo: Compute the gradient on A3 and b3 """
-    dLdA3 = np.zeros(self.A3.shape) # replace it with your code
-    dLdb3 = np.zeros(self.b3.shape) # replace it with your code
-
     """ Todo: Implement backpropagation for Layer 2 """
-
+   
     """ Todo: Implmenet backpropagation for Layer 1 """
 
-    """ Todo: Compute the gradient on A1 and b1 """
-    dLdA1 = np.zeros(self.A1.shape) # replace it with your code
-    dLdb1 = np.zeros(self.b1.shape) # replace it with your code
+    """ Todo: Reduce gradients """
+    L = 0.0
+    dLdA3 = np.zeros(self.A3.shape)
+    dLdb3 = np.zeros(self.b3.shape)
+    dLdA1 = np.zeros(self.A1.shape)
+    dLdb1 = np.zeros(self.b1.shape)
 
+    """ gradient scaling """
+    L /= float(count)
+    dLdA3 /= float(count)
+    dLdb3 /= float(count)
+    dLdA1 /= float(count)
+    dLdb1 /= float(count)
+     
+    """ regularization """
+    L += 0.5 * self.lam * (np.sum(A1*A1) + np.sum(A3*A3))
+ 
     """ regularization gradient """
     dLdA3 = dLdA3.reshape(self.A3.shape)
     dLdA1 = dLdA1.reshape(self.A1.shape)
