@@ -374,12 +374,12 @@ class CNNClassifier(Classifier):
       dump_big_matrix(dLdl1, "cnn_dLdl1_mat", dump_chunks)
       dump_big_matrix(dLdX, "cnn_dLdX_mat", dump_chunks)
       dump_big_matrix(dLdA10, "cnn_dLdA10_mat", 1)
-      dump_big_matrix(dLdb10, "cnn_dLdA10_mat", 1)
+      dump_big_matrix(dLdb10, "cnn_dLdb10_mat", 1)
       dump_big_matrix(dLdA7, "cnn_dLdA7_mat", 1)
-      dump_big_matrix(dLdb7, "cnn_dLdA7_mat", 1)
+      dump_big_matrix(dLdb7, "cnn_dLdb7_mat", 1)
       dump_big_matrix(dLdA4, "cnn_dLdA4_mat", 1)
-      dump_big_matrix(dLdb4, "cnn_dLdA4_mat", 1)
+      dump_big_matrix(dLdb4, "cnn_dLdb4_mat", 1)
       dump_big_matrix(dLdA1, "cnn_dLdA1_mat", 1)
-      dump_big_matrix(dLdb1, "cnn_dLdA1_mat", 1)
+      dump_big_matrix(dLdb1, "cnn_dLdb1_mat", 1)
 
     return L
